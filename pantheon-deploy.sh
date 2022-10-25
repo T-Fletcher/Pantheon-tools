@@ -2,14 +2,17 @@
 
 # Uses Pantheon's Terminus interface to import config from deployed changes to DEV, TEST and LIVE environments
 
+# To use, create a .env file containing the following variables and add your details:
+
+# SITE='/path/to/my/local/repo/'
+# PANTHEON_PROJECT='my-pantheon-project'
+
 # Usage: bash pantheon-deploy.sh ENV 
 # e.g bash pantheon-deploy.sh test
 
+source .env
+
 HERE=$(pwd)
-# Enter your local site e.g. /User/someone/repos/mysite/
-SITE=""
-# Enter the name of your Pantheon project
-PANTHEON_PROJECT='.'
 ENV=$1
 
 if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
