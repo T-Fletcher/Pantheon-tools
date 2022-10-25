@@ -1,2 +1,5 @@
 # Gitignore
 .env
+
+# Ignore downloaded log files
+/logs/*
