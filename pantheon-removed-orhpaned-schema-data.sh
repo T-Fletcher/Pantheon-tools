@@ -30,9 +30,9 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         echo -e 'Jumping to site location: '$SITE    
         
         if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then            
-            
-                echo -e "Removing orphaned schema data for module '"$MODULE"' on '"$ENV"' environment"
-                terminus remote:drush $PANTHEON_PROJECT.$ENV -- php-eval "\Drupal::keyValue('system.schema')->delete('{"$MODULE"}');"
+            # @TODO: Add check to see if module is enabled before scrubbing any data
+            echo -e "Removing orphaned schema data for module '"$MODULE"' on '"$ENV"' environment. Note this appears to be successful even if no data is found!"
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- php-eval "\Drupal::keyValue('system.schema')->delete('{"$MODULE"}');"
         else
             echo 'ERROR: No environment provided. '$USAGE
             exit 1
