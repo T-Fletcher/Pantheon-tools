@@ -24,10 +24,13 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     cd $SITE
     echo -e 'Jumping to site location: '$SITE    
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
+       
         echo -e 'Importing configuration to '$ENV' and rebuilding cache. You may need to run this several times if a memory error appears\n'
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
+       
         echo -e 'Import complete, rebuilding cache' && 
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr && 
+        
         echo -e 'Cache rebuild complete!'
         cd $HERE;
     else
