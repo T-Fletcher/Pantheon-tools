@@ -29,9 +29,7 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         echo -e 'Importing new and updated configuration to '$ENV
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
 
-        echo -e 'cim --partial only imports new and updated config - deleted entities are left inact: \n\n
-        https://www.drush.org/latest/commands/config_import/\n\n
-        Delete these entities via the UI of the target site, where possible'
+        echo -e '\n*** WARNING *** \ncim --partial only imports new and updated config - deleted entities are left inact:\n\nhttps://www.drush.org/latest/commands/config_import/\n\nDelete these entities via the UI of the target site, where possible!\n'
         
         echo -e 'Rebuilding cache' && 
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr && 
