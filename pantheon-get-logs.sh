@@ -35,7 +35,8 @@ echo -e 'For documentation on Pantheon Logs, see https://pantheon.io/docs/logs\n
 if [[ ! -d $LOGS_LOC ]]; then 
     echo 'No logs directory found, creating one now...\n'
     mkdir logs
-elif [[ ! -d $LOGS_LOC_ENV ]]; then
+fi
+if [[ ! -d $LOGS_LOC_ENV ]]; then
     echo -e 'No logs directory found for '$ENV', creating one now...\n'
     mkdir $LOGS_LOC_ENV
 fi
