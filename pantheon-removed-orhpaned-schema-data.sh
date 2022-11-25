@@ -17,7 +17,7 @@ source .env
 HERE=$(pwd)
 ENV=$1
 MODULE=$2
-USAGE='Usage: pantheon-deploy.sh <dev/test/live> <module_name_1> <module_name_2> ...'
+USAGE='Usage: pantheon-deploy.sh <dev/test/live> <module_name>'
 
 if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
     echo -e 'ERROR: No Pantheon project specified in $PANTHEON_PROJECT, around line 12.'
@@ -42,6 +42,6 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         exit 1
     fi
 else 
-    echo -e 'ERROR: You must specify a local site location in $SITE (around line 9).\nERROR: '$SITE' does not exist!'
+    echo -e 'ERROR: You must specify a local site location in the $SITE variable (around line 9).\nERROR: '$SITE' does not exist!'
     exit 1
 fi
