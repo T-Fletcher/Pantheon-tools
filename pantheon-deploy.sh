@@ -27,7 +27,19 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         echo -e 'You may need to run this several times if a memory error appears, particularly when enabling modules\n'
         
         echo -e 'Importing new and updated configuration to '$ENV
-        echo -e '\n*** WARNING *** \ncim --partial only imports new and updated config - deleted entities are left inact:\n\nhttps://www.drush.org/latest/commands/config_import/\n\nDelete these entities via the UI of the target site, where possible!\n'
+
+        echo -e '
+        *** WARNING ***
+        * 
+        * cim --partial only imports new and updated config - deleted entities are left inact:
+        * 
+        * https://www.drush.org/latest/commands/config_import/
+        * 
+        * Delete these entities via the UI of the target site, where possible!
+        * 
+        ***************
+        '
+
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
         
         echo -e 'Rebuilding cache' && 
