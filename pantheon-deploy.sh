@@ -10,7 +10,12 @@
 # Usage: bash pantheon-deploy.sh ENV 
 # e.g bash pantheon-deploy.sh test
 
-source .env
+if [[ -f .env ]]; then
+    source .env
+else 
+    echo -e 'You must create a .env file to specify your project details, see script comments.'
+    exit 0
+fi
 
 HERE=$(pwd)
 ENV=$1
@@ -24,28 +29,32 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     cd $SITE
     echo -e 'Jumping to site location: '$SITE    
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
-        echo -e 'You may need to run this several times if a memory error appears, particularly when enabling modules\n'
+        echo -e 'NOTE: If your config involves enabling modules, enable them first
+                 with terminus before importing config.\n'
+        echo -e 'You may need to run this several times if a memory error appears\n'
         
         echo -e 'Importing new and updated configuration to '$ENV
 
         echo -e '
         *** WARNING ***
         * 
-        * cim --partial only imports new and updated config - deleted entities are left inact:
+        * cim --partial only imports new and updated config - deleted entities are left intact:
         * 
         * https://www.drush.org/latest/commands/config_import/
         * 
-        * Delete these entities via the UI of the target site, where possible!
+        * DO NOT try to delete them programatically, this can WSOD your site!
+        * Delete these entities via the UI of the target site, where possible.
         * 
         ***************
         '
 
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
-        
-        echo -e 'Rebuilding cache' && 
+        # echo -e 'Running update.php'
+        # terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb && 
+        echo -e 'Rebuilding cache'
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr && 
-        
         echo -e 'Cache rebuild complete!'
+
         cd $HERE;
     else
         echo 'ERROR: No environment provided. Usage: pantheon-deploy.sh <dev/test/live>'
