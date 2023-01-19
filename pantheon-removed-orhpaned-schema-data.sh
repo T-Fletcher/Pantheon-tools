@@ -18,6 +18,8 @@ HERE=$(pwd)
 ENV=$1
 MODULE=$2
 USAGE='Usage: pantheon-deploy.sh <dev/test/live> <module_name>'
+# Update MODULE_LIST to use an array of module names if you want to bulk-clean
+MODULE_LIST=($MODULE) 
 
 if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
     echo -e 'ERROR: No Pantheon project specified in $PANTHEON_PROJECT, around line 12.'
@@ -27,12 +29,14 @@ fi
 if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
    if [[ $(echo $MODULE) != '' ]]; then 
         cd $SITE
-        echo -e 'Jumping to site location: '$SITE    
+        echo -e 'Jumping to site location: '$SITE
         
-        if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then            
+        if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
             # @TODO: Add check to see if module is enabled before scrubbing any data
-            echo -e "Removing orphaned schema data for module '"$MODULE"' on '"$ENV"' environment. Note this appears to be successful even if no data is found!"
-            terminus remote:drush $PANTHEON_PROJECT.$ENV -- php-eval "\Drupal::keyValue('system.schema')->delete('{"$MODULE"}');"
+            for MOD in ${MODULE_LIST[@]}; do
+                echo -e "Removing orphaned schema data for module '"$MOD"' on '"$ENV"' environment. Note this appears to be successful even if no data is found!"
+                terminus remote:drush $PANTHEON_PROJECT.$ENV -- php-eval "\Drupal::keyValue('system.schema')->delete('{"$MOD"}');"
+            done
         else
             echo 'ERROR: No environment provided. '$USAGE
             exit 1
