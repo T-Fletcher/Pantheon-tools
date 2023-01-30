@@ -29,24 +29,24 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     cd $SITE
     echo -e 'Jumping to site location: '$SITE    
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
-        echo -e 'NOTE: If your config involves enabling modules, enable them first
-                 with terminus before importing config.\n'
         echo -e 'You may need to run this several times if a memory error appears\n'
+        echo -e 'NOTE: If your config changs involve enabling modules, enable them first with terminus 
+to reduce the chance of memory issues before importing config.\n'
         
         echo -e 'Importing new and updated configuration to '$ENV
 
         echo -e '
-        *** WARNING ***
-        * 
-        * cim --partial only imports new and updated config - deleted entities are left intact:
-        * 
-        * https://www.drush.org/latest/commands/config_import/
-        * 
-        * DO NOT try to delete them programatically, this can WSOD your site!
-        * Delete these entities via the UI of the target site, where possible.
-        * 
-        ***************
-        '
+*** WARNING ***
+* 
+* cim --partial only imports new and updated config - deleted entities are left intact:
+* 
+* https://www.drush.org/latest/commands/config_import/
+* 
+* DO NOT try to delete them programatically, this can WSOD your site!
+* Delete these entities via the UI of the target site, where possible.
+* 
+***************
+'
 
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
         # echo -e 'Running update.php'
