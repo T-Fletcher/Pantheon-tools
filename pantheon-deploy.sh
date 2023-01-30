@@ -30,10 +30,31 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     echo -e 'Jumping to site location: '$SITE    
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
         echo -e 'You may need to run this several times if a memory error appears\n'
-        echo -e 'NOTE: If your config changs involve enabling modules, enable them first with terminus 
+        echo -e 'NOTE: If your config changs involve adding/removing modules, enable/uninstall them first with terminus 
 to reduce the chance of memory issues before importing config.\n'
         
-        echo -e 'Importing new and updated configuration to '$ENV
+read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV"? (y/n) " yn
+
+case $yn in 
+	[yY] ) echo 'Ok, next question...';
+
+        read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n) " yn
+    
+        case $yn in 
+            [yY] ) echo 'Ok, importing partial config changes...';
+                break;;
+            [nN] ) echo 'Better do that first!';
+                exit;;
+            * ) echo 'Invalid response, exiting' && exit;;
+        esac
+		break;;
+	[nN] ) echo 'Better do that first!';
+		exit;;
+	* ) echo 'Invalid response, exiting' && exit;;
+esac
+
+
+echo -e 'Importing new and updated configuration to '$ENV
 
         echo -e '
 *** WARNING ***
@@ -43,11 +64,10 @@ to reduce the chance of memory issues before importing config.\n'
 * https://www.drush.org/latest/commands/config_import/
 * 
 * DO NOT try to delete them programatically, this can WSOD your site!
-* Delete these entities via the UI of the target site, where possible.
+* Delete these entities via the UI of the target site before importing the config changes.
 * 
 ***************
 '
-
         terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
         # echo -e 'Running update.php'
         # terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb && 
