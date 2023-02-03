@@ -31,17 +31,13 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     echo -e 'Jumping to site location: '$SITE    
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
         echo -e 'You may need to run this several times if a memory error appears\n'
-        echo -e 'NOTE: If your config changs involve adding/removing modules, enable/uninstall them first with terminus 
-to reduce the chance of memory issues before importing config.\n'
         
-        read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV"? (y/n)" response
+        read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV" with terminus to reduce the chance of memory issues on import? (y/n)" response
 
         if [[ $response = 'y' || $response = 'Y' ]];then
-            echo -e '\nOk, next question:\n'
             read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
 
             if [[ $response = 'y' || $response = 'Y' ]];then
-                echo -e '\nOk, next question:\n';
                 read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
 
                 if [[ $response = 'y' || $response = 'Y' ]];then
