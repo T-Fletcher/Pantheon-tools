@@ -19,6 +19,7 @@ fi
 
 HERE=$(pwd)
 ENV=$1
+UPDB=0
 
 if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
     echo -e 'ERROR: No Pantheon project specified in $PANTHEON_PROJECT, around line 12.\nERROR: Exiting...'
@@ -33,30 +34,34 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         echo -e 'NOTE: If your config changs involve adding/removing modules, enable/uninstall them first with terminus 
 to reduce the chance of memory issues before importing config.\n'
         
-read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV"? (y/n) " yn
+        read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV"? (y/n)" response
 
-case $yn in 
-	[yY] ) echo 'Ok, next question...';
+        if [[ $response = 'y' || $response = 'Y' ]];then
+            echo -e '\nOk, next question:\n'
+            read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
 
-        read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n) " yn
-    
-        case $yn in 
-            [yY] ) echo 'Ok, importing partial config changes...';
-                break;;
-            [nN] ) echo 'Better do that first!';
-                exit;;
-            * ) echo 'Invalid response, exiting' && exit;;
-        esac
-		break;;
-	[nN] ) echo 'Better do that first!';
-		exit;;
-	* ) echo 'Invalid response, exiting' && exit;;
-esac
+            if [[ $response = 'y' || $response = 'Y' ]];then
+                echo -e '\nOk, next question:\n';
+                read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
+
+                if [[ $response = 'y' || $response = 'Y' ]];then
+                    UPDB=1 && echo '\nOk, running a drush updb before importing changes\n';
+                else
+                    echo '\nNo worries, importing partial config changes\n';
+                fi
+            else
+                echo 'Better do that first!';
+                exit
+            fi
+        else
+            echo 'Better do that first!';
+            exit
+        fi
 
 
 echo -e 'Importing new and updated configuration to '$ENV
 
-        echo -e '
+echo -e '
 *** WARNING ***
 * 
 * cim --partial only imports new and updated config - deleted entities are left intact:
@@ -68,12 +73,20 @@ echo -e 'Importing new and updated configuration to '$ENV
 * 
 ***************
 '
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial && 
-        # echo -e 'Running update.php'
-        # terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb && 
-        echo -e 'Rebuilding cache'
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr && 
-        echo -e 'Cache rebuild complete!'
+        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
+
+        if [ $? -eq 0 ]; then
+            if [ $UPDB -eq 1 ]; then
+                echo -e 'Running database updates, if any'
+                terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb
+            fi
+            echo -e 'Rebuilding cache'
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
+            echo -e 'Cache rebuild complete!'
+        else 
+            echo -e '\nError, try again. Exiting...\n'
+            exit 1;
+        fi;
 
         cd $HERE;
     else
