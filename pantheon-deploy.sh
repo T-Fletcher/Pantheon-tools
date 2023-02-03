@@ -47,7 +47,7 @@ to reduce the chance of memory issues before importing config.\n'
                 if [[ $response = 'y' || $response = 'Y' ]];then
                     UPDB=1 && echo '\nOk, running a drush updb before importing changes\n';
                 else
-                    echo '\nNo worries, importing partial config changes\n';
+                    echo -e '\nNo worries, importing partial config changes\n';
                 fi
             else
                 echo 'Better do that first!';
@@ -83,8 +83,11 @@ echo -e '
             echo -e 'Rebuilding cache'
             terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
             echo -e 'Cache rebuild complete!'
+        elif [ $? -eq 255 ]; then
+            echo -e '\nMemory error, try again. Exiting...\n'
+            exit 1;
         else 
-            echo -e '\nError, try again. Exiting...\n'
+            echo -e '\nSome error, try again. Exiting...\n'
             exit 1;
         fi;
 
