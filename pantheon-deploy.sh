@@ -83,7 +83,7 @@ echo -e '
             echo -e '\nMemory error, try again. Exiting...\n'
             exit 1;
         else 
-            echo -e '\nSome error, try again. Exiting...\n'
+            echo -e '\Error returned. Better look into it ^^^ Exiting...\n'
             exit 1;
         fi;
 
