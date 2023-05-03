@@ -17,9 +17,9 @@ source .env
 HERE=$(pwd)
 ENV=$1
 MODULE=$2
-USAGE='Usage: pantheon-deploy.sh <dev/test/live> <module_name>'
+USAGE='Usage: pantheon-remove-orphaned-schema-data.sh <dev/test/live> <module_name>'
 # Update MODULE_LIST to use an array of module names if you want to bulk-clean
-MODULE_LIST=($MODULE) 
+MODULE_LIST=(chosen chosen_lib chosen_field unmanaged_files update) 
 
 if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
     echo -e 'ERROR: No Pantheon project specified in $PANTHEON_PROJECT, around line 12.'
