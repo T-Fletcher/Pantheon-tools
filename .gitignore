@@ -3,3 +3,6 @@
 
 # Ignore downloaded log files
 /logs/*
+
+# Ignore alias files that may contain sensitive information
+.pantheon_aliases
