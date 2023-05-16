@@ -32,7 +32,7 @@ CLEANUP_AGGREGATE_DIR=false
 
 echo -e 'For documentation on Pantheon Logs, see https://pantheon.io/docs/logs\n\n'
 
-if [[ ! -d $LOGS_LOC ]]; then 
+if [[ ! -d $LOGS_LOC ]]; then
     echo 'No logs directory found, creating one now...\n'
     mkdir logs
 fi
@@ -44,11 +44,11 @@ fi
 cd $LOGS_LOC_ENV
 
 if [ $COLLECT_LOGS == true ]; then
-    echo 'COLLECT_LOGS set to $COLLECT_LOGS. Beginning the process...'
+    echo -e "COLLECT_LOGS set to $COLLECT_LOGS. Beginning the process..."
     for app_server in $(dig +short -4 appserver.$ENV.$SITE_UUID.drush.in); do
         echo "get -R logs \"app_server_$app_server\"" | sftp -o Port=2222 "$ENV.$SITE_UUID@$app_server"
     done
-
+    
     # Include MySQL logs
     for db_server in $(dig +short -4 dbserver.$ENV.$SITE_UUID.drush.in); do
         echo "get -R logs \"db_server_$db_server\"" | sftp -o Port=2222 "$ENV.$SITE_UUID@$db_server"
@@ -58,30 +58,30 @@ else
 fi
 
 if [ $AGGREGATE_NGINX == true ]; then
-    echo 'AGGREGATE_NGINX set to $AGGREGATE_NGINX. Starting the process of combining nginx-access logs...'
+    echo -e "AGGREGATE_NGINX set to $AGGREGATE_NGINX. Starting the process of combining nginx-access logs..."
     mkdir aggregate-logs
-
+    
     for d in $(ls -d app*/nginx); do
         for f in $(ls -f "$d"); do
-        if [[ $f == "nginx-access.log" ]]; then
-            cat "$d/$f" >> aggregate-logs/nginx-access.log
-            cat "" >> aggregate-logs/nginx-access.log
-        fi
-        if [[ $f =~ \.gz ]]; then
-            cp -v "$d/$f" aggregate-logs/
-        fi
+            if [[ $f == "nginx-access.log" ]]; then
+                cat "$d/$f" >> aggregate-logs/nginx-access.log
+                cat "" >> aggregate-logs/nginx-access.log
+            fi
+            if [[ $f =~ \.gz ]]; then
+                cp -v "$d/$f" aggregate-logs/
+            fi
         done
     done
-
+    
     echo "unzipping nginx-access logs in aggregate-logs directory..."
     for f in $(ls -f aggregate-logs); do
         if [[ $f =~ \.gz ]]; then
             gunzip aggregate-logs/"$f"
         fi
     done
-
+    
     echo "combining all nginx access logs..."
-
+    
     for f in $(ls -f aggregate-logs); do
         cat aggregate-logs/"$f" >> aggregate-logs/combined.logs
     done
