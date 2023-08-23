@@ -27,29 +27,36 @@ if [[ $(echo $PANTHEON_PROJECT) == '' ]]; then
 fi
 
 if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
-    cd $SITE
-    echo -e 'Jumping to site location: '$SITE    
-    if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
+    if [[ ! $1 ]] || [[ $1 == '' ]]; then
+        echo 'ERROR: No environment provided. Usage: pantheon-deploy.sh <dev/test/live/my-multidev-env>'
+        exit 1
+    else
+        cd $SITE
+        echo -e 'Jumping to site location: '$SITE
+        echo -e 'Reinstalling pathauto on "'$ENV'" environment...\n'
         echo -e 'You may need to run this several times if a memory error appears\n'
-
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- pm:uninstall pathauto -y
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- en -y pathauto
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
         
-        if [ $? -eq 255 ]; then
-            echo -e '\nMemory error, try again. Exiting...\n'
+        envExists=$(terminus remote:drush $PANTHEON_PROJECT.$ENV 2>&1)
+
+        if [[ "$envExists" == " [error]"* ]]; then
+            echo -e '\nEnvironment "'$ENV'" cannot be found. Exiting...\n'
             exit 1;
         else 
-            echo -e '\Error returned. Better look into it ^^^ Exiting...\n'
-            exit 1;
-        fi;
-
-        cd $HERE;
-    else
-        echo 'ERROR: No environment provided. Usage: pantheon-deploy.sh <dev/test/live>'
-        exit 1
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- pm:uninstall pathauto -y
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- en -y pathauto
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
+            
+            if [ $? -eq 255 ]; then
+                echo -e '\nMemory error, try again. Exiting...\n'
+                exit 1;
+            else 
+                echo -e '\nPathauto reinstallation complete, now save a page to test it worked!\n'
+                exit 1;
+            fi;
+            cd $HERE;
+        fi
     fi
 else 
     echo -e 'ERROR: You must specify a local site location in $SITE (around line 9).\nERROR: '$SITE' does not exist! \nExiting...'
