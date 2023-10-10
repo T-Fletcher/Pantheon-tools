@@ -35,29 +35,29 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV" with terminus to reduce the chance of memory issues on import? (y/n)" response
 
         if [[ $response = 'y' || $response = 'Y' ]];then
-            read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
+            
+            read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
 
             if [[ $response = 'y' || $response = 'Y' ]];then
-                read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
-
-                if [[ $response = 'y' || $response = 'Y' ]];then
-                    UPDB=1 && echo -e '\nOk, running a drush updb before importing changes\n';
-                else
-                    echo -e '\nNo worries, importing partial config changes\n';
-                fi
-            else
-                echo 'Better do that first!';
-                exit
+                UPDB=1 && echo -e `\nOk, running 'drush updb' after importing changes\n`;
             fi
+        
         else
             echo 'Better do that first!';
             exit
         fi
 
+        read -p "Do you want to run a partial config import? This uses less memory for crummy servers, but leaves deleted entities intact in the database (y/n)" response
+        if [[ $response = 'y' || $response = 'Y' ]];then
+            read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
 
-echo -e 'Importing new and updated configuration to '$ENV
+            if [[ $response = 'n' || $response = 'N' ]];then
+                echo 'Better do that first!';
+                exit
+            fi
 
-echo -e '
+            echo -e 'Importing new and updated configuration to '$ENV
+            echo -e '
 *** WARNING ***
 * 
 * cim --partial only imports new and updated config - deleted entities are left intact:
@@ -69,7 +69,13 @@ echo -e '
 * 
 ***************
 '
-        terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
+        else 
+
+            echo -e 'Syncing all configuration to '$ENV
+            terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y
+        fi
+
 
         if [ $? -eq 0 ]; then
             if [ $UPDB -eq 1 ]; then
