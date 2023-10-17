@@ -38,8 +38,9 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
             
             read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
 
-            if [[ $response = 'y' || $response = 'Y' ]];then
-                UPDB=1 && echo -e `\nOk, running 'drush updb' after importing changes\n`;
+            if [[ $response = 'y' || $response = 'Y' ]]; then
+                UPDB=1;
+                echo -e '\nOk, running "drush updb" after importing changes\n';
             fi
         
         else
