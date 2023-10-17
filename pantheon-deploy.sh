@@ -32,12 +32,13 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
         echo -e 'You may need to run this several times if a memory error appears\n'
         
-        read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
+        read -p "Do these updates require a drush database update on DEV .e.g a Drupal Core update? (Note Pantheon runs update.php by default on TEST and LIVE deployments) (y/n)" response
 
         if [[ $response = 'y' || $response = 'Y' ]]; then
             UPDB=1;
-            echo -e '\nOk, running "drush updb" after importing changes\n';
+            echo -e '\nOk, running "drush updb" after importing changes';
         fi
+        echo ''
 
         read -p "Do you want to run only a partial config import ('y' for partial, 'n' for full)? This uses less memory for crummy servers, but leaves deleted entities intact in the database (y/n)" response
 
@@ -46,13 +47,13 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
             read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV" with terminus to reduce the chance of memory issues on import? (y/n)" response
 
             if [[ $response = 'n' || $response = 'N' ]];then
-                echo "If you're using a crummy server, you may need to do this to avoid memory errors. Let's see what happens...";
+                echo -e "\nIf you're using a crummy server, you may need to do this to avoid memory errors. Let's see what happens...\n";
             fi
          
             read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
 
             if [[ $response = 'n' || $response = 'N' ]];then
-                echo 'Better do that first, or you will have orphaned items in the database!';
+                echo -e '\nBetter do that first, or you will have orphaned items in the database!\n';
                 exit
             fi
 
