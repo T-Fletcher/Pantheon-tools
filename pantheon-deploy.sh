@@ -32,32 +32,31 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
     if [[ $1 == 'dev' ]] || [[ $1 == 'test' ]] || [[ $1 == 'live' ]]; then
         echo -e 'You may need to run this several times if a memory error appears\n'
         
-        read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV" with terminus to reduce the chance of memory issues on import? (y/n)" response
+        read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
 
-        if [[ $response = 'y' || $response = 'Y' ]];then
-            
-            read -p "Do these updates require a drush database update .e.g a Drupal Core update? (y/n)" response
-
-            if [[ $response = 'y' || $response = 'Y' ]]; then
-                UPDB=1;
-                echo -e '\nOk, running "drush updb" after importing changes\n';
-            fi
-        
-        else
-            echo 'Better do that first!';
-            exit
+        if [[ $response = 'y' || $response = 'Y' ]]; then
+            UPDB=1;
+            echo -e '\nOk, running "drush updb" after importing changes\n';
         fi
 
-        read -p "Do you want to run a partial config import? This uses less memory for crummy servers, but leaves deleted entities intact in the database (y/n)" response
+        read -p "Do you want to run only a partial config import ('y' for partial, 'n' for full)? This uses less memory for crummy servers, but leaves deleted entities intact in the database (y/n)" response
+
         if [[ $response = 'y' || $response = 'Y' ]];then
+         
+            read -p "Have you enabled or uninstalled all modules affected by this config on "$ENV" with terminus to reduce the chance of memory issues on import? (y/n)" response
+
+            if [[ $response = 'n' || $response = 'N' ]];then
+                echo "If you're using a crummy server, you may need to do this to avoid memory errors. Let's see what happens...";
+            fi
+         
             read -p "Have you deleted any entities via the UI on "$ENV" that are removed by this config? (y/n)" response
 
             if [[ $response = 'n' || $response = 'N' ]];then
-                echo 'Better do that first!';
+                echo 'Better do that first, or you will have orphaned items in the database!';
                 exit
             fi
 
-            echo -e 'Importing new and updated configuration to '$ENV
+            echo -e '\nImporting new and updated configuration to '$ENV
             echo -e '
 *** WARNING ***
 * 
@@ -73,7 +72,7 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
             terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y --partial
         else 
 
-            echo -e 'Syncing all configuration to '$ENV
+            echo -e '\nSyncing all configuration to '$ENV
             terminus remote:drush $PANTHEON_PROJECT.$ENV -- cim -y
         fi
 
@@ -89,17 +88,18 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         elif [ $? -eq 255 ]; then
             echo -e '\nMemory error, try again. Exiting...\n'
             exit 1;
-        else 
+        else
             echo -e '\Error returned. Better look into it ^^^ Exiting...\n'
             exit 1;
         fi;
 
+        # Jump back to wherever we ran the script from
         cd $HERE;
     else
         echo 'ERROR: No environment provided. Usage: pantheon-deploy.sh <dev/test/live>'
-        exit 1
+        exit 1;
     fi
 else 
-    echo -e 'ERROR: You must specify a local site location in $SITE (around line 9).\nERROR: '$SITE' does not exist! \nExiting...'
-    exit 1
+    echo -e 'ERROR: You must specify a local site location in $SITE (around line 9).\nERROR: '$SITE' does not exist! \nExiting...';
+    exit 1;
 fi
