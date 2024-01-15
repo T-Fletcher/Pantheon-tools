@@ -81,7 +81,7 @@ if [[ $(echo $SITE) != '' ]] && $(cd $SITE); then
         if [ $? -eq 0 ]; then
             if [ $UPDB -eq 1 ]; then
                 echo -e 'Running database updates, if any'
-                terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb
+                terminus remote:drush $PANTHEON_PROJECT.$ENV -- updb -y
             fi
             echo -e 'Rebuilding cache'
             terminus remote:drush $PANTHEON_PROJECT.$ENV -- cr
